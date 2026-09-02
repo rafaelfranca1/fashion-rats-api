@@ -13,9 +13,23 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id             Int      @id @default(autoincrement())
+  email          String   @unique
+  name           String?
+  current_streak Int      @default(0)
+  outfits        Outfit[]
 
   @@map("users")
+}
+
+model Outfit {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  note        String?
+  imageUrl    String?
+  checkedInAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, checkedInAt])
+  @@map("outfits")
 }
