@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { PrismaService } from '../prisma/prisma.service';
 import { Outfit } from '../../generated/prisma/client.js';
-import { CheckinDto } from './dto/checkin.dto.js';
+import { CheckinDto } from './dto/checkin.dto';
 
 export type CheckinResponse = {
   outfit: Outfit;
