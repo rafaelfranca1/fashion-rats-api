@@ -2,10 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
-jest.mock('@nestjs/mapped-types', () => ({
-  PartialType: (classRef: new (...args: unknown[]) => unknown) => classRef,
-}));
-
 describe('UsersController', () => {
   let controller: UsersController;
 

@@ -5,7 +5,7 @@ import {
   PayloadTooLargeException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { STORAGE_PORT, StoragePort } from '../storage/storage.port';
+import { STORAGE_PORT, type StoragePort } from '../storage/storage.port';
 import {
   ALLOWED_PREFIXES,
   ALLOWED_UPLOAD_TYPES,

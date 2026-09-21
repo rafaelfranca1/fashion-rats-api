@@ -1,4 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "."
+  },
+  "include": ["src/**/*", "generated/**/*.ts"],
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }
