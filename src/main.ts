@@ -26,6 +26,7 @@ async function bootstrap() {
     .setTitle('Fashion Rats API')
     .setDescription('API de wardrobes, check-ins e uploads')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

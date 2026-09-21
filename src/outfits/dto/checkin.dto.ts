@@ -1,12 +1,6 @@
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, IsUrl, Min } from 'class-validator';
+import { IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CheckinDto {
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  userId!: number;
-
   @IsOptional()
   @IsString()
   note?: string;

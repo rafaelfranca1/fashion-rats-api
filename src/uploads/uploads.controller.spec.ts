@@ -1,6 +1,12 @@
-import { BadRequestException } from '@nestjs/common';
+process.env.JWT_SECRET ??= 'test-jwt-secret-for-specs';
+
+import { BadRequestException, INestApplication } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
+import request from 'supertest';
+import { JwtStrategy } from '../auth/jwt.strategy';
 import { UploadsController } from './uploads.controller';
 import { UploadsService } from './uploads.service';
 
@@ -12,6 +18,7 @@ describe('UploadsController', () => {
     upload = jest.fn();
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [PassportModule.register({})],
       controllers: [UploadsController],
       providers: [{ provide: UploadsService, useValue: { upload } }],
     }).compile();
@@ -62,5 +69,44 @@ describe('UploadsController', () => {
       );
       expect(upload).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('UploadsController (http)', () => {
+  let app: INestApplication;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        PassportModule.register({}),
+        JwtModule.register({
+          secret: process.env.JWT_SECRET,
+          signOptions: { expiresIn: '7d' },
+        }),
+      ],
+      controllers: [UploadsController],
+      providers: [
+        JwtStrategy,
+        { provide: UploadsService, useValue: { upload: jest.fn() } },
+      ],
+    }).compile();
+
+    app = module.createNestApplication();
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app?.close();
+  });
+
+  it('returns 401 without token', async () => {
+    await request(app.getHttpServer()).post('/uploads').expect(401);
+  });
+
+  it('returns 401 with invalid token', async () => {
+    await request(app.getHttpServer())
+      .post('/uploads')
+      .set('Authorization', 'Bearer not-a-jwt')
+      .expect(401);
   });
 });

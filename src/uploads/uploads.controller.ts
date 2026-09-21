@@ -6,12 +6,14 @@ import {
   Post,
   Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import type { Request } from 'express';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MAX_UPLOAD_BYTES } from './upload.constants';
 import { UploadsService } from './uploads.service';
 
@@ -20,6 +22,8 @@ import { UploadsService } from './uploads.service';
 export class UploadsController {
   constructor(private readonly uploadsService: UploadsService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post()
   @HttpCode(201)
   @ApiConsumes('multipart/form-data')

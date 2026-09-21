@@ -1,5 +1,8 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthUser } from '../auth/current-user.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OutfitsService } from './outfits.service';
 import { CheckinDto } from './dto/checkin.dto';
 import { FindAllOutfitsDto } from './dto/find-all-outfits.dto';
@@ -16,9 +19,11 @@ export class OutfitsController {
       take: query.take != null ? +query.take : undefined,
     });
   }
-  
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('checkin')
-  checkin(@Body() dto: CheckinDto) {
-    return this.outfitsService.checkin(dto);
+  checkin(@CurrentUser() user: AuthUser, @Body() dto: CheckinDto) {
+    return this.outfitsService.checkin(user.userId, dto);
   }
 }

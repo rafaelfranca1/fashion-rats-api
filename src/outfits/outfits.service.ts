@@ -33,13 +33,13 @@ export class OutfitsService {
     });
   }
 
-  async checkin(dto: CheckinDto): Promise<CheckinResponse> {
+  async checkin(userId: number, dto: CheckinDto): Promise<CheckinResponse> {
     const user = await this.prisma.user.findUnique({
-      where: { id: dto.userId },
+      where: { id: userId },
     });
 
     if (!user) {
-      throw new NotFoundException(`User with id ${dto.userId} not found`);
+      throw new NotFoundException(`User with id ${userId} not found`);
     }
 
     const startOfToday = startOfUtcDay(new Date());
@@ -47,7 +47,7 @@ export class OutfitsService {
 
     const outfitToday = await this.prisma.outfit.findFirst({
       where: {
-        userId: dto.userId,
+        userId,
         checkedInAt: {
           gte: startOfToday,
           lt: startOfTomorrow,
@@ -63,7 +63,7 @@ export class OutfitsService {
 
     const lastOutfitBeforeToday = await this.prisma.outfit.findFirst({
       where: {
-        userId: dto.userId,
+        userId,
         checkedInAt: { lt: startOfToday },
       },
       orderBy: { checkedInAt: 'desc' },
@@ -78,14 +78,14 @@ export class OutfitsService {
     return this.prisma.$transaction(async (tx) => {
       const outfit = await tx.outfit.create({
         data: {
-          userId: dto.userId,
+          userId,
           note: dto.note,
           imageUrl: dto.imageUrl,
         },
       });
 
       await tx.user.update({
-        where: { id: dto.userId },
+        where: { id: userId },
         data: { current_streak: newStreak },
       });
 
