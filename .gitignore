@@ -57,3 +57,12 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Generated Prisma client
 generated/
+
+# Uploaded OOTD files
+/uploads/
+
+# Absolute Work session board
+.absolute-work/
+
+# Plans
+docs/plans/
