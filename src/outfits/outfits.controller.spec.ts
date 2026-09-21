@@ -113,3 +113,62 @@ describe('OutfitsController checkin (http)', () => {
     expect(checkin).not.toHaveBeenCalled();
   });
 });
+
+describe('OutfitsController /me (http)', () => {
+  let app: INestApplication;
+  let findAll: jest.Mock;
+  let jwtService: JwtService;
+
+  beforeEach(async () => {
+    findAll = jest.fn().mockResolvedValue([]);
+
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        PassportModule.register({}),
+        JwtModule.register({
+          secret: process.env.JWT_SECRET,
+          signOptions: { expiresIn: '7d' },
+        }),
+      ],
+      controllers: [OutfitsController],
+      providers: [
+        JwtStrategy,
+        { provide: OutfitsService, useValue: { findAll, checkin: jest.fn() } },
+      ],
+    }).compile();
+
+    jwtService = module.get(JwtService);
+    app = module.createNestApplication();
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app?.close();
+  });
+
+  it('GET /outfits/me without token returns 401', async () => {
+    const res = await request(app.getHttpServer()).get('/outfits/me');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /outfits/me calls findAll with token userId', async () => {
+    const token = jwtService.sign({ sub: 42, email: 'rat@example.com' });
+
+    const res = await request(app.getHttpServer())
+      .get('/outfits/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(findAll).toHaveBeenCalledWith({
+      skip: undefined,
+      take: undefined,
+      where: { userId: 42 },
+      orderBy: { checkedInAt: 'desc' },
+    });
+  });
+
+  it('GET /outfits is gone', async () => {
+    const res = await request(app.getHttpServer()).get('/outfits');
+    expect(res.status).toBe(404);
+  });
+});

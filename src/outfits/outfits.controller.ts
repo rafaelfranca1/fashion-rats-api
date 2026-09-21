@@ -12,11 +12,15 @@ import { FindAllOutfitsDto } from './dto/find-all-outfits.dto';
 export class OutfitsController {
   constructor(private readonly outfitsService: OutfitsService) {}
 
-  @Get()
-  findAll(@Query() query: FindAllOutfitsDto) {
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('me')
+  findMine(@CurrentUser() user: AuthUser, @Query() query: FindAllOutfitsDto) {
     return this.outfitsService.findAll({
       skip: query.skip != null ? +query.skip : undefined,
       take: query.take != null ? +query.take : undefined,
+      where: { userId: user.userId },
+      orderBy: { checkedInAt: 'desc' },
     });
   }
 
