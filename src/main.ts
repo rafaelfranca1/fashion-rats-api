@@ -8,6 +8,11 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableCors({
+    origin: ['http://localhost:3001'],
+    methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
   app.useStaticAssets(uploadsRoot(), { prefix: '/uploads/' });
   app.useGlobalPipes(
     new ValidationPipe({
