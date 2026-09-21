@@ -9,7 +9,10 @@ describe('OutfitsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OutfitsController],
       providers: [
-        { provide: OutfitsService, useValue: { checkin: jest.fn() } },
+        {
+          provide: OutfitsService,
+          useValue: { findAll: jest.fn(), checkin: jest.fn() },
+        },
       ],
     }).compile();
 

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Outfit } from '../../generated/prisma/client.js';
+import { Outfit, Prisma } from '../../generated/prisma/client.js';
 import { CheckinDto } from './dto/checkin.dto';
 
 export type CheckinResponse = {
@@ -15,6 +15,23 @@ export type CheckinResponse = {
 @Injectable()
 export class OutfitsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async findAll(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.OutfitWhereUniqueInput;
+    where?: Prisma.OutfitWhereInput;
+    orderBy?: Prisma.OutfitOrderByWithRelationInput;
+  }): Promise<Outfit[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.outfit.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
+  }
 
   async checkin(dto: CheckinDto): Promise<CheckinResponse> {
     const user = await this.prisma.user.findUnique({
