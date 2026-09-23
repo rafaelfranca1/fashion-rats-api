@@ -1,43 +1,33 @@
-# Fashion Rats API 🐀🔥
+# Fashion Rats API
 
-A gamified backend service for urban fashion enthusiasts. This API manages digital wardrobes, validates daily OOTD (Outfit of the Day) uploads, and enforces strict check-in streaks to maintain user engagement.
+API NestJS + Prisma + PostgreSQL. Check-in diário de outfit e streak do usuário, gravados na mesma transação Prisma.
 
-Built to demonstrate robust transactional operations, dynamic time-based state machines, and third-party media handling.
+Um check-in por dia (UTC). Se o último foi ontem, o streak sobe. Se houve intervalo, volta a 1. O segundo check-in no mesmo dia responde conflito.
 
-**Tech Stack**
-* **Framework:** NestJS (TypeScript)
-* **Database:** PostgreSQL + Prisma ORM
-* **Storage:** AWS S3 (Multipart file handling)
-* **Auth:** JWT (Role-Based Access Control)
+**Stack:** NestJS · TypeScript · PostgreSQL · Prisma
 
-**Core Business Rules Implemented**
-* **Atomic Transactions:** Outfit uploads and wardrobe tagging are processed in a single Prisma `$transaction`. If the DB fails, the S3 upload is rolled back.
-* **Temporal State Machines:** CRON Jobs evaluate user local timezones to reset check-in streaks at exactly 00:00.
-* **Ownership Validation:** Strict RBAC and resource guarding prevent users from tagging items they do not own.
+## Modelos
 
-**Run Locally (The 5 Commands)**
+- **User** — id, email, name, current_streak
+- **Outfit** — id, userId, note, imageUrl, checkedInAt
 
-Make sure you have Node.js and Docker installed. Create a `.env` file based on `.env.example`, then run:
+## Rodar
 
-1. Install dependencies:
-`npm install`
+Node.js e um PostgreSQL que você já consiga acessar. Este repositório não traz Docker Compose.
 
-2. Spin up the PostgreSQL database:
-`docker compose up -d`
+Crie um `.env` na raiz:
 
-3. Run migrations and generate Prisma Client:
-`npx prisma migrate dev`
+```
+DATABASE_URL=postgresql://usuario:senha@localhost:5432/NOME_DO_BANCO
+```
 
-4. Run the test suite:
-`npm run test`
+```
+npm install
+npx prisma migrate dev
+npm run test
+npm run start:dev
+```
 
-5. Start the development server:
-`npm run start:dev`
+A API sobe em `http://localhost:3000` (ou na porta de `PORT`).
 
-The API will be available at `http://localhost:3000`.
-
-**Entity Relationship Diagram (ERD)**
-* **User:** id, email, current_streak, highest_streak, role
-* **WardrobeItem:** id, user_id, brand, category, tags
-* **OutfitCheckin:** id, user_id, image_url, created_at
-* **_OutfitToItem (N:N):** outfit_id, item_id
+Check-in: `POST /outfits/checkin` com `userId` e, se quiser, `note` e `imageUrl`.
